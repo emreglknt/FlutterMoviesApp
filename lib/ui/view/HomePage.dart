@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_app/data/entity/moviesModel.dart';
-import 'package:movies_app/ui/DetailsPage.dart';
+import 'package:movies_app/ui/cubits/HomePageCubit.dart';
+import 'package:movies_app/ui/view/DetailsPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -48,27 +50,16 @@ void addToCart(BuildContext context, Movies movie) {
 
 
 
+
 class _HomePageState extends State<HomePage> {
 
-  Future<List<Movies>> loadMovies() async {
-    var movieList = <Movies>[];
-    var m1 = Movies(id: 1, movieName: "Django", movieImage: "django.png", price: 43);
-    movieList.add(m1);
-    var m2 = Movies(id: 2, movieName: "Interstellar", movieImage: "interstellar.png", price: 25);
-    movieList.add(m2);
-    var m3 = Movies(id: 3, movieName: "Inception", movieImage: "inception.png", price: 40);
-    movieList.add(m3);
-    var m4 = Movies(id: 4, movieName: "The Hateful Eight", movieImage: "thehatefuleight.png", price: 20);
-    movieList.add(m4);
-    var m5 = Movies(id: 5, movieName: "The Pianist", movieImage: "thepianist.png", price: 80);
-    movieList.add(m5);
-    var m6 = Movies(id: 6, movieName:"Anadoluda", movieImage: "anadoluda.png", price: 18);
-    movieList.add(m6);
 
-    return movieList;
-
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<HomePageCubit>().loadMovies();//sayfa açıldığı anda cubitteki filmleri yükle fonksiyonu çalıştır.
   }
-
 
 
   @override
@@ -76,16 +67,14 @@ class _HomePageState extends State<HomePage> {
     return  Scaffold(
       appBar: AppBar(
         title: const Text("Movies"),),
-      body: FutureBuilder<List<Movies>>(
-        future: loadMovies(),
-        builder: (context,snapshot){
-          if(snapshot.hasData && snapshot.data != null){
-            var mList = snapshot.data;
+      body: BlocBuilder<HomePageCubit,List<Movies>>(//emit ile gelen veriyi dinledik.
+        builder: (context,movieList){
+          if(movieList.isNotEmpty){
             return GridView.builder(
-              itemCount: mList!.length,
+              itemCount: movieList.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,childAspectRatio: 1/1.8),
               itemBuilder: (context,index){
-                var movie = mList![index];
+                var movie = movieList[index];
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage(movie: movie,)))
